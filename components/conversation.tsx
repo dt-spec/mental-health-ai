@@ -10,6 +10,16 @@ interface Message {
   timestamp: number;
 }
 
+interface CallHistory {
+  topic: string;
+  timestamp: number;
+  duration: number;
+}
+
+interface ConversationProps {
+  onEnd: () => void;
+}
+
 const moods = [
   { emoji: '😟', label: 'Struggling', color: '#FEE2E2' },
   { emoji: '😐', label: 'Neutral', color: '#FEF3C7' },
@@ -83,7 +93,7 @@ const commonQuestions = [
   }
 ];
 
-export function Conversation() {
+export function Conversation({ onEnd }: ConversationProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [callDuration, setCallDuration] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -93,6 +103,11 @@ export function Conversation() {
   const [isListening, setIsListening] = useState(false);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [currentAffirmation, setCurrentAffirmation] = useState(affirmations[0]);
+  const [askedQuestions, setAskedQuestions] = useState<string[]>([]);
+  const [breathingExercises, setBreathingExercises] = useState<number>(0);
+  const [callHistory, setCallHistory] = useState<CallHistory[]>([]);
+  const [currentTopic, setCurrentTopic] = useState<string>('');
+  const [topicStartTime, setTopicStartTime] = useState<number | null>(null);
   
   const conversation = useConversation({
     onConnect: () => {
@@ -100,9 +115,18 @@ export function Conversation() {
       setStartTime(Date.now());
       setShowQuestions(false);
       setIsListening(true);
+      setTopicStartTime(Date.now());
     },
     onDisconnect: () => {
       console.log('Disconnected');
+      if (currentTopic && topicStartTime) {
+        const duration = Math.floor((Date.now() - topicStartTime) / 1000);
+        setCallHistory(prev => [...prev, {
+          topic: currentTopic,
+          timestamp: topicStartTime,
+          duration
+        }]);
+      }
       setStartTime(null);
       setShowQuestions(true);
       setShowAnalytics(true);
@@ -111,6 +135,25 @@ export function Conversation() {
     onMessage: (message) => {
       console.log('Message:', message);
       const content = typeof message === 'string' ? message : message.message || '';
+      
+      // Track breathing exercises
+      if (content.toLowerCase().includes('breathing exercise')) {
+        setBreathingExercises(prev => prev + 1);
+      }
+
+      // Track conversation topics
+      if (content.toLowerCase().includes('anxiety')) {
+        setCurrentTopic('Anxiety Management');
+      } else if (content.toLowerCase().includes('stress')) {
+        setCurrentTopic('Stress Relief');
+      } else if (content.toLowerCase().includes('breathing')) {
+        setCurrentTopic('Breathing Exercise');
+      } else if (content.toLowerCase().includes('mindfulness')) {
+        setCurrentTopic('Mindfulness Practice');
+      } else if (content.toLowerCase().includes('sleep')) {
+        setCurrentTopic('Sleep Support');
+      }
+      
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content,
@@ -159,7 +202,7 @@ export function Conversation() {
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
       await conversation.startSession({
-        agentId: 'eGzlsAlVcxG9S2aijDK9',
+        agentId: '9ISz6RYRso4c3HPl9GRf',
       });
     } catch (error) {
       console.error('Failed to start conversation:', error);
@@ -186,6 +229,26 @@ export function Conversation() {
     }
   }, [conversation]);
 
+  const handleEndConversation = useCallback(() => {
+    stopConversation();
+    setShowQuestions(true);
+    setShowAnalytics(true);
+  }, [stopConversation]);
+
+  const handleNewConversation = useCallback(() => {
+    onEnd();
+  }, [onEnd]);
+
+  // Add function to track asked questions
+  const trackQuestion = useCallback((question: string) => {
+    setAskedQuestions(prev => {
+      if (!prev.includes(question)) {
+        return [...prev, question];
+      }
+      return prev;
+    });
+  }, []);
+
   return (
     <div className={styles.container}>
       <main className={styles.main}>
@@ -195,7 +258,7 @@ export function Conversation() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <h1>Haven</h1>
+            <h1>Joe</h1>
             <p>Your compassionate mental health companion</p>
           </motion.div>
         </div>
@@ -237,31 +300,25 @@ export function Conversation() {
         )}
 
         <div className={styles.buttonContainer}>
-          <motion.button
-            onClick={startConversation}
-            disabled={conversation.status === 'connected'}
-            className={`${styles.button} ${conversation.status === 'connected' ? styles.disabled : ''}`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            {isListening ? (
-              <div className={styles.listeningState}>
-                <div className={styles.microphoneIcon} />
-                <span>Listening...</span>
-              </div>
-            ) : (
-              'Start Conversation'
-            )}
-          </motion.button>
-          <motion.button
-            onClick={stopConversation}
-            disabled={conversation.status !== 'connected'}
-            className={`${styles.button} ${styles.stopButton} ${conversation.status !== 'connected' ? styles.disabled : ''}`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Stop Conversation
-          </motion.button>
+          {conversation.status !== 'connected' ? (
+            <motion.button
+              onClick={startConversation}
+              className={styles.button}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Start Conversation
+            </motion.button>
+          ) : (
+            <motion.button
+              onClick={handleEndConversation}
+              className={`${styles.button} ${styles.stopButton}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Stop Conversation
+            </motion.button>
+          )}
         </div>
 
         {showQuestions && (
@@ -302,6 +359,7 @@ export function Conversation() {
                           key={qIndex}
                           whileHover={{ x: 4 }}
                           onClick={() => {
+                            trackQuestion(question);
                             console.log('Question clicked:', question);
                           }}
                         >
@@ -328,7 +386,60 @@ export function Conversation() {
                 <h3>Total Duration</h3>
                 <p>{formatDuration(callDuration)}</p>
               </div>
+              <div className={styles.statCard}>
+                <h3>Breathing Exercises</h3>
+                <p>{breathingExercises} completed</p>
+              </div>
             </div>
+
+            {callHistory.length > 0 && (
+              <div className={styles.callHistory}>
+                <h3>Call History</h3>
+                <ul>
+                  {callHistory.map((entry, index) => (
+                    <motion.li
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className={styles.historyItem}
+                    >
+                      <div className={styles.historyTopic}>{entry.topic}</div>
+                      <div className={styles.historyTime}>
+                        {new Date(entry.timestamp).toLocaleTimeString()} ({formatDuration(entry.duration)})
+                      </div>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {askedQuestions.length > 0 && (
+              <div className={styles.questionsAsked}>
+                <h3>Questions Asked</h3>
+                <ul>
+                  {askedQuestions.map((question, index) => (
+                    <motion.li
+                      key={index}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      {question}
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <motion.button
+              onClick={handleNewConversation}
+              className={`${styles.button} ${styles.newConversationButton}`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Start New Conversation
+            </motion.button>
           </motion.div>
         )}
       </main>

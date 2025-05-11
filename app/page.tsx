@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Conversation from '../components/conversation';
+import { Conversation } from '../components/conversation';
 
 export default function Home() {
   const [isStarted, setIsStarted] = useState(false);
@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-center mb-8">Haven</h1>
+        <h1 className="text-4xl font-bold text-center mb-8">Joe</h1>
         <p className="text-center text-gray-300 mb-8">
           Your compassionate mental health voice assistant
         </p>
