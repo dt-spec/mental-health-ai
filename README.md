@@ -41,8 +41,6 @@ OPENAI_API_KEY=your_openai_api_key
 npm run dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
-
 ## Usage
 
 1. Click "Start Conversation" to begin
