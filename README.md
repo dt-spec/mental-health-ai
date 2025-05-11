@@ -1,30 +1,28 @@
-# Haven - Mental Health Voice Assistant
+# Joe - Mental Health Voice Assistant
 
-Haven is a compassionate mental health voice assistant that provides emotional support and guidance through voice conversations. It offers a safe space for users to express their feelings and receive helpful responses.
+Joe is a compassionate voice-based mental health assistant that provides emotional support through natural conversations. Built with Next.js, ElevenLabs, and OpenAI, Joe offers a safe space for users to express their feelings and receive supportive guidance.
 
 ## Features
 
-- Voice-based conversation interface
-- Mood tracking and emotional support
-- Guided breathing exercises and mindfulness techniques
-- Daily affirmations and positive reinforcement
-- Crisis support resources
-- Expandable question categories for easy navigation
+- 🎤 Natural voice conversations
+- 🧘 Guided breathing exercises
+- 📊 Mood tracking and analytics
+- 💭 Thoughtful responses to emotional needs
+- 🔒 Privacy-focused design
 
 ## Tech Stack
 
-- Next.js
-- TypeScript
-- Framer Motion for animations
-- ElevenLabs for voice synthesis
-- OpenAI for conversation processing
+- **Frontend**: Next.js 14, React, TailwindCSS
+- **Voice**: ElevenLabs API
+- **AI**: OpenAI API
+- **Styling**: TailwindCSS, Framer Motion
 
 ## Getting Started
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/haven.git
-cd haven
+git clone https://github.com/dt-spec/mental-health-ai.git
+cd mental-health-ai
 ```
 
 2. Install dependencies:
@@ -32,7 +30,7 @@ cd haven
 npm install
 ```
 
-3. Create a `.env.local` file in the root directory and add your API keys:
+3. Create a `.env.local` file with your API keys:
 ```
 ELEVENLABS_API_KEY=your_elevenlabs_api_key
 OPENAI_API_KEY=your_openai_api_key
@@ -43,27 +41,38 @@ OPENAI_API_KEY=your_openai_api_key
 npm run dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Usage
 
-1. Select your current mood from the options provided
-2. Click "Start Conversation" to begin speaking with Haven
-3. Use the suggested questions or ask your own
-4. Click "Stop Conversation" when you're done
+1. Click "Start Conversation" to begin
+2. Allow microphone access when prompted
+3. Speak naturally with Joe
+4. Use the suggested questions or ask your own
+5. End the conversation when you're done
 
-## Project Structure
+## Features in Detail
 
-```
-├── components/
-│   └── conversation.tsx    # Main conversation component
-├── pages/
-│   ├── index.tsx          # Main page
-│   └── api/              # API routes
-├── styles/
-│   └── Home.module.css   # Component styles
-└── public/              # Static assets
-```
+### Voice Conversation
+- Natural, empathetic responses
+- Real-time voice interaction
+- Context-aware conversations
+
+### Breathing Exercises
+- Guided breathing techniques
+- Calming voice instructions
+- Progress tracking
+
+### Mood Tracking
+- Daily mood logging
+- Emotional pattern recognition
+- Personalized support
+
+### Analytics Dashboard
+- Conversation history
+- Breathing exercise tracking
+- Question tracking
+- Duration tracking
 
 ## Contributing
 
@@ -75,6 +84,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- ElevenLabs for the voice API
-- OpenAI for the language model
-- Next.js team for the amazing framework 
+- ElevenLabs for voice synthesis
+- OpenAI for conversation processing
+- The mental health community for inspiration 
